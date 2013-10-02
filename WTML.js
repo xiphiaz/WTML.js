@@ -81,42 +81,6 @@
                     return cleaned;
                 };
 
-                /**
-                 * Definitions
-                 */
-
-                    /*
-                $tag = '[a-zA-Z0-9]+';
-                $class = '((\.-?[_a-zA-Z]+[_a-zA-Z0-9-]*)*';
-                $id = '(\#-?[_a-zA-Z]+[_a-zA-Z0-9-]*)*';
-                $attribute = '(\[.*?\])*';
-                $content = '(\(\".*?\"\))*)*';
-
-                $selectorRegex = $tag.$class.$id.$attribute.$content;
-
-                $wtmlCommentLong = "\/\/.*?(?=\n)";  // c style block kcommenting out
-                $wtmlCommentShort = "\/\*.*?\*\/";  // c style one line commenting out
-                $twigBlock = "{%.*?%}"; //block level twig element
-                $twigComment = "{#.*?#}";
-                $htmlComment = "<!--.*?-->";
-                $nestingGrammar = "[{>}]"; //syntax used for delimiting nesting of html block elements (in place of closure tags)
-
-                $finalRegex = "/($wtmlCommentLong)|($wtmlCommentShort)|($twigBlock)|($twigComment)|($htmlComment)|($selectorRegex)|($nestingGrammar)/s";
-
-                */
-
-//                var htmlTag = /[a-zA-Z0-9]+/,
-//                    className = /(\.-?[_a-zA-Z]+[_a-zA-Z0-9-]*)*/,
-//                    id = /(\#-?[_a-zA-Z]+[_a-zA-Z0-9-]*)*/,
-//                    attribute = /(\[.*?\])*/,
-//                    content = /(\(\".*?\"\))*/
-//                ;
-//
-//                var selectorRegex = new RegExp( htmlTag.source +'(' +className.source + id.source + attribute.source + content.source + ')*', 'g') ;
-
-
-                //([a-zA-Z0-9])+(\#(-?[_a-zA-Z]+[_a-zA-Z0-9-]))?(\.-?[_a-zA-Z]+[_a-zA-Z0-9-]*)*(\[.*?\])*(\(.*?\))?  |||| build with debuggex with the test string div#sample.example[foo="bar"]({{foobar}})
-
                 var htmlTag = /([a-zA-Z0-9]+)/,
                     className = /((?:\.-?[_a-zA-Z]+[_a-zA-Z0-9-]*)*)/,
                     id = /(#-?[_a-zA-Z]+[_a-zA-Z0-9-])?/,
@@ -138,10 +102,120 @@
             };
         })();
 
+
+        /*
+        Example DOM tree:
+         */
+
+        var domTreeExample = {
+            children:[
+                {
+                    element: {},
+                    children: [
+                        {
+                            element: {
+                                tag: 'div',
+                                id: 'example'
+                                /* ... etc */
+                            },
+                            children: [
+
+                            ]
+                        },
+                        {
+                            element: {
+                                tag: 'span',
+                                id: 'example2'
+                            },
+                            children: [
+
+                            ]
+                        },
+                        {
+                            element: {
+                                tag: 'code',
+                                id: 'example3'
+                            },
+                            children: [
+
+                            ]
+                        }
+                        /* ... etc */
+                    ]
+                }
+            ],
+            locate: function(locateKey){
+                var retrieveObject = this;
+
+                while(locateKey.length > 0){
+                    var key = locateKey.shift();
+                    console.log('key', key);
+                    console.log('retrieveObject', retrieveObject)
+                    retrieveObject = retrieveObject.children[key]; //drill down into object
+                }
+
+                return retrieveObject;
+            }
+        };
+
+        var domAccessExample = domTreeExample.children[0].children[2].element.tag; //div
+        var accessKey = [0, 2];
+
+        domTreeExample.locate([0, 2]).element.class = "foobar";
+
+        console.log('example access: ', domAccessExample);
+        console.log('locate example:', domTreeExample.locate([0, 2]));
+
         var Parser = (function(){ //build up the syntax tree with the elements
             return function(){
                 this.process = function(elements){
-                    var domTree = {};
+
+                    var domTree = {
+                        children: [],
+                        locate: function(locateKey){
+                            var retrieveObject = this;
+                            var keyCopy = locateKey.slice(0);
+
+                            while(keyCopy.length > 0){
+                                var key = keyCopy.shift();
+//                                console.log('key', key);
+//                                console.log('retrieveObject', retrieveObject);
+
+                                if (typeof retrieveObject.children == 'undefined'){
+                                    retrieveObject.children = [];
+                                }
+                                if (typeof retrieveObject.children[key] == 'undefined'){
+                                    retrieveObject.children[key] = {};
+                                }
+
+                                retrieveObject = retrieveObject.children[key]; //drill down into object
+                            }
+
+                            return retrieveObject;
+                        }
+                    };
+
+                    var domLocation = [-1];
+                    for (var i = 0; i<elements.length; i++){
+                        var currentElement = elements[i];
+                        if (currentElement.type == 'selector'){
+                            domLocation[domLocation.length-1] ++; //go to next location
+                            domTree.locate(domLocation).element = currentElement;
+
+                            console.log('inserted', currentElement.value, 'at', domLocation);
+                        }
+                        if (currentElement.type == 'nestingGrammar'){
+                            if (currentElement.value == '{'){
+                                domLocation.push(-1); //jump down a level
+                            }else if (currentElement.value == '}'){
+                                domLocation.pop(); //jump back up a level
+                            }else if (currentElement.value == '>'){
+//                                domLocation.push(-1);
+                                //@todo do nothing for now, wait til I have a better visual on the dom tree manipulation
+                            }
+                        }
+
+                    }
 
                     domTree.test = elements[0];
 
