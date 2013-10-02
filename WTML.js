@@ -22,6 +22,53 @@
                     var elements = [];
 
                     var cleanedRawInput = preProcess(wtmlRaw);
+                    var matches;
+                    while(matches = finalRegex.exec(cleanedRawInput)){
+
+                        var element = {};
+                        if (typeof matches[8] == 'string'){
+                            element.type = 'nestingGrammar';
+                            element.value = matches[8];
+                        }
+                        if (typeof matches[2] == 'string'){
+                            element.type = 'selector';
+                            element.value = matches[2];
+
+                            element.selector = {};
+                            element.selector.tag = matches[3];
+
+                            if (typeof matches[3] !== 'undefined'){ //id
+                                //throw an error, tag missing
+                            }
+
+                            if (typeof matches[4] !== 'undefined'){ //id
+                                element.selector.id = matches[4].substr(1);
+                            }
+                            if (typeof matches[5] !== 'undefined'){ //class
+                                element.selector.class = matches[5].substr(1).split('.');
+                            }
+                            if (typeof matches[6] !== 'undefined'){ //attr
+                                element.selector.attr = matches[6].slice(1, -1).split(/\].*\[/);
+                            }
+                            if (typeof matches[7] !== 'undefined'){ //content
+                                element.selector.content = matches[7].slice(1, -1); //strip off the braces
+                            }
+                        }
+                        if (typeof matches[1] == 'string'){
+                            element.type = 'htmlComment';
+                            element.value = matches[1];
+                        }
+
+                        if (typeof element.type == 'undefined'){
+                            //throw error
+                        }
+
+                        element.rawMatches = matches;
+
+                        elements.push(element);
+                    }
+
+                    console.log('elements: ', elements);
 
                     elements.push(cleanedRawInput);
 
@@ -31,14 +78,6 @@
                 var preProcess = function(wtmlRaw){
                     var commentMatch  = /\/\/.*?(?=\n)|\/\*([^*]|[\r\n])*\*\//g; //matches all comments in c form
                     var cleaned = wtmlRaw.replace(commentMatch, ''); //strip all comments
-//                    var cleaned = wtmlRaw.replace(/h/g, '?'); //strip all comments
-                    var chunks = [];
-                    var matches;
-                    while(matches = finalRegex.exec(cleaned)){
-                        chunks.push(matches);
-                    }
-                    console.log('chunks: ', chunks);
-
                     return cleaned;
                 };
 
@@ -111,7 +150,7 @@
             };
         })();
 
-        var Compiler = (function(){ //build up the syntax tree with the elements
+        var Compiler = (function(){ //build up the html from the syntax tree
             return function(){
                 this.process = function(domTree){
                     var html = '';
