@@ -133,6 +133,7 @@
                     };
 
                     var domLocation = [-1];
+                    var nestedSelectorQueueCount = 0;
                     for (var i = 0; i<elements.length; i++){
                         var currentElement = elements[i];
                         if (currentElement.type == 'selector'){
@@ -140,6 +141,20 @@
                             domTree.locate(domLocation).element = currentElement;
 
                             console.log('inserted', currentElement.value, 'at', domLocation);
+
+                            console.log('elements[i+1]', elements[i+1], typeof elements[i+1]);
+
+                            if (nestedSelectorQueueCount > 0
+                                && typeof elements[i+1] == 'object'
+                                && !(
+                                    elements[i+1].type =='nestingGrammar'
+                                    && elements[i+1].value == '>'
+                                )
+                                ){
+                                console.log('nestedSelectorQueueCount', nestedSelectorQueueCount);
+                                domLocation.splice(nestedSelectorQueueCount * -1, nestedSelectorQueueCount); //jump back up a level
+                                nestedSelectorQueueCount = 0; //reset
+                            }
                         }
                         if (currentElement.type == 'nestingGrammar'){
                             if (currentElement.value == '{'){
@@ -147,7 +162,9 @@
                             }else if (currentElement.value == '}'){
                                 domLocation.pop(); //jump back up a level
                             }else if (currentElement.value == '>'){
-//                                domLocation.push(-1);
+                                domLocation.push(-1);
+                                console.log('domLocation', domLocation);
+                                nestedSelectorQueueCount ++ ;
                                 //@todo do nothing for now, wait til I have a better visual on the dom tree manipulation
                             }
                         }
