@@ -1,0 +1,26 @@
+{
+    "name": "WTML",
+    "version": "0.0.0",
+    "description": "Processes .wtml strings into xml/html strings",
+    "main": "WTML.js",
+    "scripts": {
+        "test": "var wmtl = new wtml();"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/xiphiaz/WTML.js.git"
+    },
+    "keywords": [
+        "wtml",
+        "html"
+    ],
+    "author": {
+        "name": "Zak Henry",
+        "email": "zak.henry@gmail.com"
+    },
+    "license": "BSD",
+    "readmeFilename": "README",
+    "bugs": {
+        "url": "https://github.com/xiphiaz/WTML.js/issues"
+    }
+}
