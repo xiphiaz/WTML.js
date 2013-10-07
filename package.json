@@ -1,14 +1,14 @@
 {
-    "name": "WTML",
+    "name": "wtml",
     "version": "0.0.0",
     "description": "Processes .wtml strings into xml/html strings",
-    "main": "WTML.js",
+    "main": "wtml.js",
     "scripts": {
         "test": "var wmtl = new wtml();"
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/xiphiaz/WTML.js.git"
+        "url": "https://github.com/xiphiaz/wtml.js.git"
     },
     "keywords": [
         "wtml",
@@ -21,6 +21,6 @@
     "license": "BSD",
     "readmeFilename": "README",
     "bugs": {
-        "url": "https://github.com/xiphiaz/WTML.js/issues"
+        "url": "https://github.com/xiphiaz/wtml.js/issues"
     }
 }
