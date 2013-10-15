@@ -8,7 +8,7 @@
 
 'use strict';
 
-var markdown = require('markdown')
+var markdown = require('markdown');
 
 var wtml = function() {
 
@@ -201,7 +201,7 @@ var wtml = function() {
                 }
 
                 if (typeof selector.content !== 'undefined') {
-                    startString += selector.content;
+                    startString += markdown.markdown.toHTML(selector.content); //parse the content as markdown
                 }
 
                 htmlNode.openTag = startString;
