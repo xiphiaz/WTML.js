@@ -8,6 +8,8 @@
 
 'use strict';
 
+var markdown = require('markdown')
+
 var wtml = function() {
 
     var Lexer = (function () { //break down the string into elements
